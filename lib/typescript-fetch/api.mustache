@@ -6,12 +6,40 @@
 import * as url from "url";
 import portableFetch from "portable-fetch";
 import { Configuration } from "./configuration";
-import { RESTDataSource } from "apollo-datasource-rest";
-// {$CustomDataSourcePlaceholder}
+{{^dataSourceImportString}}import { RESTDataSource } from "apollo-datasource-rest";{{/dataSourceImportString}}
+{{#dataSourceImportString}}import { {{dataSourceName}} } from '{{dataSourceImportString}}';{{/dataSourceImportString}}
+{{#withCircuitBreaker}}
+{{^circuitBreakerImportString}}import { circuitBreaker, handleWhen, SamplingBreaker } from 'cockatiel'{{/circuitBreakerImportString}}
+{{#circuitBreakerImportString}}import { {{circuitBreakerConfigFn}} } from '@app/circuit-breakers/CircuitBreakerConfig'{{/circuitBreakerImportString}}
+{{/withCircuitBreaker}}
 
 type GenericObject<key, type> = {}
 
 const BASE_PATH = "{{{basePath}}}".replace(/\/+$/, "");
+export let serviceCircuitBreaker;
+{{#withCircuitBreaker}}
+{{^circuitBreakerImportString}}
+export const initializeCircuitBreaker = () => {
+  const breakerPolicy = {
+    halfOpenAfter: 3000,
+    breaker: new SamplingBreaker({ threshold: 0.5, duration: 3 * 1000, minimumRps: 1 }),
+  }
+  serviceCircuitBreaker = circuitBreaker(handleWhen(err => err.extensions.code.startsWith("5")), breakerPolicy)
+}
+{{/circuitBreakerImportString}}
+
+{{#circuitBreakerImportString}}
+export const initializeCircuitBreaker = () => {
+  serviceCircuitBreaker = {{circuitBreakerConfigFn}}('{{serviceName}}')
+}
+{{/circuitBreakerImportString}}
+initializeCircuitBreaker()
+
+export const resetCircuitBreaker = () => {
+  initializeCircuitBreaker()
+}
+
+{{/withCircuitBreaker}}
 
 /**
  *
@@ -95,7 +123,7 @@ export class Controllers {
 
 {{#apiInfo}}{{#apis}}{{#operations}}
 
-export class {{classname}}Api extends RESTDataSource {
+export class {{classname}}Api extends {{dataSourceName}} {
     constructor(baseUrl?: string) {
         super();
         this.baseURL = baseUrl;
@@ -104,9 +132,12 @@ export class {{classname}}Api extends RESTDataSource {
     {{#operation}}
     {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}): Promise<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Response{{/returnType}}> {
         const args = this.paramCreator.{{nickname}}({{#allParams}}{{paramName}}, {{/allParams}})
-
-        // @ts-ignore
+        {{#withCircuitBreaker}}
+        return serviceCircuitBreaker.execute(() => this.fetch(Object.assign(args.options, { path: args.url })))
+        {{/withCircuitBreaker}}
+        {{^withCircuitBreaker}}
         return this.fetch(Object.assign(args.options, { path: args.url }))
+        {{/withCircuitBreaker}}
     }
     {{/operation}}
 }
