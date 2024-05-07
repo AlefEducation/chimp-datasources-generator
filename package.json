@@ -1,5 +1,5 @@
 {
-  "name": "chimp-datasources-generator",
+  "name": "@alefeducation/chimp-datasources-generator",
   "version": "0.0.0-development",
   "description": "Helper that autogenerates DataSource-compatible APIs per controller for a given microservice, based on OpenAPI/Swagger specification",
   "bin": "lib/chimp-datasources-generator.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/xolvio/chimp-datasources-generator.git"
+    "url": "https://github.com/alefeducation/chimp-datasources-generator.git"
   },
   "keywords": [],
   "author": "",
