@@ -10,7 +10,7 @@ import { Configuration } from "./configuration";
 {{#dataSourceImportString}}import { {{dataSourceName}} } from '{{dataSourceImportString}}';{{/dataSourceImportString}}
 {{#withCircuitBreaker}}
 {{^circuitBreakerImportString}}import { circuitBreaker, handleWhen, SamplingBreaker } from 'cockatiel'{{/circuitBreakerImportString}}
-{{#circuitBreakerImportString}}import { {{circuitBreakerConfigFn}} } from '@app/circuit-breakers/CircuitBreakerConfig'{{/circuitBreakerImportString}}
+{{#circuitBreakerImportString}}import { {{circuitBreakerConfigFn}} } from '{{ circuitBreakerImportString }}'{{/circuitBreakerImportString}}
 {{/withCircuitBreaker}}
 
 type GenericObject<key, type> = {}

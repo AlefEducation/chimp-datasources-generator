@@ -7,7 +7,7 @@
     "test": "jest",
     "lint": "eslint \"lib/**/*.js\" --quiet",
     "semantic-release": "semantic-release",
-    "generate-sample": "node ./lib/chimp-datasources-generator.js create ./sample-apis/generated/petstore sample-apis/api-spec/petstore.json -ds \"@app/apis/BaseDataSource#BaseDataSource\" -cb -cbc \"@app/circuit-breakers/CircuitBreakerConfig#getServiceCircuitBreaker\""
+    "generate-sample": "node ./lib/chimp-datasources-generator.js create ./sample-apis/generated/petstore sample-apis/api-spec/petstore.json -ds \"@app/apis/BaseDataSource#BaseDataSource\" -cb true -cbc \"@app/circuitBreakers/CircuitBreakerConfig#getServiceCircuitBreaker\""
   },
   "repository": {
     "type": "git",
