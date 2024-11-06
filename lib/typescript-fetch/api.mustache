@@ -109,9 +109,9 @@ export class Controllers {
         {{classname}}: {{classname}}Api
     {{/operations}}{{/apis}}{{/apiInfo}}
 
-    constructor(...args) {
+    constructor(options) {
     {{#apiInfo}}{{#apis}}{{#operations}}
-        this.{{classname}} = new {{classname}}Api(...args)
+        this.{{classname}} = new {{classname}}Api(typeof options === 'string' ? { baseUrl: options }: options)
     {{/operations}}{{/apis}}{{/apiInfo}}
     }
     initialize(config) {
@@ -124,9 +124,9 @@ export class Controllers {
 {{#apiInfo}}{{#apis}}{{#operations}}
 
 export class {{classname}}Api extends {{dataSourceName}} {
-    constructor(baseUrl?: string) {
-        super();
-        this.baseURL = baseUrl;
+    constructor(options?: any) {
+        super(options.context ? options : undefined);
+        this.baseURL = options?.baseUrl;
     }
     paramCreator = {{classname}}FetchParamCreator()
     {{#operation}}
